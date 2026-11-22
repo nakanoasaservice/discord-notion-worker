@@ -4,7 +4,6 @@ catalog:
 overrides:
   vite@*: "catalog:"
 
-pmOnFail: download
 allowBuilds:
   esbuild: true
 
