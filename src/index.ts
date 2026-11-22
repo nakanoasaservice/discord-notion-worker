@@ -9,7 +9,9 @@ worker.tool("sendDiscordMessage", {
 	title: "Send Discord Message",
 	description: "Sends a message to a Discord channel via a Discord webhook.",
 	schema: j.object({
-		webhookUrl: j.string().describe("The Discord webhook URL to send the message to."),
+		webhookUrl: j
+			.string()
+			.describe("The Discord webhook URL to send the message to."),
 		content: j.string().describe("The message text to send to Discord."),
 		username: j
 			.string()
@@ -40,7 +42,9 @@ worker.tool("sendDiscordMessage", {
 
 		if (!res.ok) {
 			const body = await res.text();
-			throw new Error(`Discord webhook request failed (${res.status}): ${body}`);
+			throw new Error(
+				`Discord webhook request failed (${res.status}): ${body}`,
+			);
 		}
 
 		return { success: true };

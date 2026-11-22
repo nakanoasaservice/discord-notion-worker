@@ -81,7 +81,10 @@ const issues = worker.database("issues", {
 	},
 });
 
-const issueTracker = worker.pacer("issueTracker", { allowedRequests: 10, intervalMs: 1000 });
+const issueTracker = worker.pacer("issueTracker", {
+	allowedRequests: 10,
+	intervalMs: 1000,
+});
 
 worker.sync("issuesSync", {
 	database: issues,
@@ -152,7 +155,7 @@ import { j } from "@notionhq/workers/schema-builder";
 schema: j.object({
 	query: j.string().describe("Search query"),
 	limit: j.number().describe("Max results").nullable(),
-})
+});
 ```
 
 Use `.nullable()` to mark a field as optional. Use `.describe()` to tell the agent what the field is for.
@@ -186,7 +189,7 @@ execute: async (input, context) => {
 	// context.notion — authenticated Notion SDK client
 	const { query, limit = 10 } = input;
 	return { results: [] };
-}
+};
 ```
 
 ## Syncs reference
@@ -236,7 +239,10 @@ worker.sync("teamsSync", {
 			changes: items.map((item) => ({
 				type: "upsert" as const,
 				key: item.id,
-				properties: { Name: Builder.title(item.name), ID: Builder.richText(item.id) },
+				properties: {
+					Name: Builder.title(item.name),
+					ID: Builder.richText(item.id),
+				},
 			})),
 			hasMore,
 			nextState: hasMore ? { page: page + 1 } : undefined,
@@ -259,7 +265,10 @@ worker.sync("eventsSync", {
 				...upserts.map((item) => ({
 					type: "upsert" as const,
 					key: item.id,
-					properties: { Name: Builder.title(item.name), ID: Builder.richText(item.id) },
+					properties: {
+						Name: Builder.title(item.name),
+						ID: Builder.richText(item.id),
+					},
 				})),
 				...deletes.map((id) => ({ type: "delete" as const, key: id })),
 			],
@@ -329,7 +338,9 @@ const tasks = worker.database("tasks", {
 
 worker.sync("projectsSync", {
 	database: projects,
-	execute: async () => { /* ... */ },
+	execute: async () => {
+		/* ... */
+	},
 });
 
 worker.sync("tasksSync", {
@@ -372,13 +383,13 @@ ntn workers capabilities enable <key>   # resume a sync
 
 The `execute` function receives an array of `WebhookEvent` objects:
 
-| Property | Type | Description |
-| :-- | :-- | :-- |
-| `deliveryId` | `string` | Unique ID for this delivery, stable across retries. |
-| `body` | `Record<string, unknown>` | Parsed JSON body (`{}` if not a JSON object). |
-| `rawBody` | `string` | Original request body as a string. Use for signature verification. |
-| `headers` | `Record<string, string>` | Request headers (lowercased names). |
-| `method` | `string` | HTTP method (webhook URLs accept `POST`). |
+| Property     | Type                      | Description                                                        |
+| :----------- | :------------------------ | :----------------------------------------------------------------- |
+| `deliveryId` | `string`                  | Unique ID for this delivery, stable across retries.                |
+| `body`       | `Record<string, unknown>` | Parsed JSON body (`{}` if not a JSON object).                      |
+| `rawBody`    | `string`                  | Original request body as a string. Use for signature verification. |
+| `headers`    | `Record<string, string>`  | Request headers (lowercased names).                                |
+| `method`     | `string`                  | HTTP method (webhook URLs accept `POST`).                          |
 
 ### Verifying requests
 
@@ -606,7 +617,8 @@ worker.tool("sendSMS", {
 			},
 		);
 
-		if (!response.ok) throw new Error(`Twilio API error: ${response.statusText}`);
+		if (!response.ok)
+			throw new Error(`Twilio API error: ${response.statusText}`);
 		return "Message sent successfully";
 	},
 });
@@ -631,7 +643,8 @@ worker.tool("postToDiscord", {
 			body: JSON.stringify({ content: message }),
 		});
 
-		if (!response.ok) throw new Error(`Discord API error: ${response.statusText}`);
+		if (!response.ok)
+			throw new Error(`Discord API error: ${response.statusText}`);
 		return "Posted to Discord";
 	},
 });
@@ -659,11 +672,15 @@ worker.tool("createPodcast", {
 					"xi-api-key": process.env.ELEVENLABS_API_KEY ?? "",
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({ text: content, model_id: "eleven_monolingual_v1" }),
+				body: JSON.stringify({
+					text: content,
+					model_id: "eleven_monolingual_v1",
+				}),
 			},
 		);
 
-		if (!response.ok) throw new Error(`ElevenLabs API error: ${response.statusText}`);
+		if (!response.ok)
+			throw new Error(`ElevenLabs API error: ${response.statusText}`);
 		const audioBuffer = await response.arrayBuffer();
 		return `Generated ${audioBuffer.byteLength} bytes of audio`;
 	},
@@ -687,13 +704,15 @@ worker.tool("getWeather", {
 			`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`,
 		);
 
-		if (!response.ok) throw new Error(`Weather API error: ${response.statusText}`);
+		if (!response.ok)
+			throw new Error(`Weather API error: ${response.statusText}`);
 
 		const data = await response.json();
 		return `${data.name}: ${data.main.temp}°C, ${data.weather[0].description}`;
 	},
 });
 ```
+
 </details>
 
 ## Helpful CLI commands
@@ -750,8 +769,8 @@ ntn --help
 ## Local development
 
 ```shell
-npm run check # type-check
-npm run build # emit dist/
+pnpm check # format, lint and type-check
+pnpm build # emit dist/
 ```
 
 Store secrets in `.env` for local development:
@@ -763,3 +782,28 @@ ntn workers env pull
 ## Learn more
 
 Read the full [Workers documentation](https://developers.notion.com/workers/get-started/overview) or join the [Notion Dev Slack](https://join.slack.com/t/notiondevs/shared_invite/zt-3u9oid9q8-HLUBmMVWYK~g9HFo4U4raA).
+
+## Development toolchain
+
+Use the Node.js and pnpm versions declared in `package.json`. Install with `pnpm install --frozen-lockfile`.
+Vite+ provides formatting, linting, type checks and the Node.js build.
+Run `pnpm check` and `pnpm build` before opening a pull request.
+
+Update Vite+ and its bundled tools together with `vp migrate`, then refresh the
+pnpm lockfile. CI resolves the Vite+ version from the project dependency or catalog
+automatically. Run the project's checks before committing toolchain updates.
+
+### Runtime versions
+
+`package.json` is the source of truth for development Node.js (`devEngines.runtime`)
+and pnpm (`packageManager`). The major versions in `mise.toml` only bootstrap the
+environment. Install the [global Vite+ CLI](https://viteplus.dev/guide/global-cli)
+with environment management enabled, then use `vp install --frozen-lockfile`
+and `vp run <script>` to run with the declared versions. `pnpm` commands also use
+them when the Vite+ shims are active. The project-local CLI alone does not switch
+Node.js versions.
+
+CI reads the same manifest automatically; compatibility-test matrices explicitly
+override Node.js. pnpm runtime management is disabled so it does not override
+Vite+'s selection. Keep any consumer-facing `engines.node` support range separate
+from the development pin.
