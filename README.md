@@ -789,9 +789,9 @@ Use the Node.js and pnpm versions declared in `package.json`. Install with `pnpm
 Vite+ provides formatting, linting, type checks and the Node.js build.
 Run `pnpm check` and `pnpm build` before opening a pull request.
 
-Update Vite+ and its bundled tools together with `vp migrate`, then update the
-pinned `setup-vp` version in CI and refresh the pnpm lockfile. Run the project's
-checks before committing toolchain updates.
+Update Vite+ and its bundled tools together with `vp migrate`, then refresh the
+pnpm lockfile. CI resolves the Vite+ version from the project dependency or catalog
+automatically. Run the project's checks before committing toolchain updates.
 
 ### Runtime versions
 
